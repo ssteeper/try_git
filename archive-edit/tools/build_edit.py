@@ -273,6 +273,7 @@ def main():
     ap.add_argument('--audio', required=True); ap.add_argument('--out', required=True)
     ap.add_argument('--seed', type=int, default=7); ap.add_argument('--jobs', type=int, default=4)
     ap.add_argument('--title', default='CUT AND RUN')
+    ap.add_argument('--music', default='"Cut and Run" by Kevin MacLeod (incompetech.com)', help='credit line for the song')
     a = ap.parse_args()
     rng = random.Random(a.seed)
     m = analyse_music(a.audio)
@@ -297,7 +298,7 @@ def main():
         (f'{len(edl)} shots from {len(films)} public-domain films, {min(years)}-{max(years)}', 40, False),
         ('Footage: Prelinger Archives, U.S. National Archives, Internet Archive', 34, False),
         ('via movingimagearchive.com', 34, False),
-        ('Music: "Cut and Run" by Kevin MacLeod (incompetech.com)', 34, False),
+        ('Music: ' + a.music, 34, False),
         ('Licensed under Creative Commons: By Attribution 4.0', 34, False),
     ], 7.0)
     lst = os.path.join(workdir, 'concat.txt')

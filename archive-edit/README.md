@@ -1,8 +1,15 @@
 # Archive edit
 
-A beat-synced edit cut from public-domain shots in the
-[Moving Image Archive](https://www.movingimagearchive.com/), set to
-"Cut and Run" by Kevin MacLeod.
+Beat-synced edits cut from public-domain shots in the
+[Moving Image Archive](https://www.movingimagearchive.com/).
+
+| Edit | Song | Seed | Files |
+|---|---|---|---|
+| Cut and Run | "Cut and Run" by Kevin MacLeod | 11 | `out/cut_and_run*.mp4` |
+| Hitman | "Hitman" by Kevin MacLeod | 23 | `out/hitman*.mp4` |
+
+Each edit has a 1080p master, a 720p copy and a compact 720p copy. The
+renders and songs are stored with Git LFS.
 
 ## What is in here
 
@@ -19,7 +26,8 @@ A beat-synced edit cut from public-domain shots in the
 | `sources.json` | Per-film metadata: title, year, Internet Archive identifier, collection, rights. |
 | `out/*.edl.json` | For each rendered edit, one row per cut: song frame range, source film, source timestamp, speed, flash. |
 
-The media itself (`sources/`, `audio/*.mp3`, `out/*.mp4`, `analysis/`) is not committed.
+The source films (`sources/`) and the motion analysis (`analysis/`) are not
+committed. The songs used and the rendered edits are, through Git LFS.
 
 ## How the archive is wired
 
@@ -55,8 +63,14 @@ pip install librosa numpy yt-dlp
 apt-get install ffmpeg
 sh tools/run_batch.sh batch1.txt   # and batch2.txt, batch3.txt
 curl -o audio/cut_and_run.mp3 "https://archive.org/cors/KevinMacLeod_2019-04_Discography/Kevin%20MacLeod/Hard%20Electronic/Kevin%20MacLeod%20-%2005%20-%20Cut%20and%20Run.mp3"
-python3 tools/build_edit.py --audio audio/cut_and_run.mp3 --out out/cut_and_run.mp4 --seed 7
+python3 tools/build_edit.py --audio audio/cut_and_run.mp3 --out out/cut_and_run.mp4 --seed 11
+curl -o audio/hitman.mp3 "https://archive.org/cors/KevinMacLeod_2019-04_Discography/Kevin%20MacLeod/Action%20Cuts/Kevin%20MacLeod%20-%2013%20-%20Hitman.mp3"
+python3 tools/build_edit.py --audio audio/hitman.mp3 --out out/hitman.mp4 --seed 23 \
+  --title HITMAN --music '"Hitman" by Kevin MacLeod (incompetech.com)'
 ```
+
+`--seed` changes the cut and the shot choice. `--title` sets the opening
+title and `--music` the song credit on the closing card.
 
 ## Credits
 
@@ -64,5 +78,6 @@ Footage: Prelinger Archives, U.S. National Archives and other Internet
 Archive collections, all marked public domain by the archive, found through
 movingimagearchive.com.
 
-Music: "Cut and Run" by Kevin MacLeod (incompetech.com), licensed under
-Creative Commons: By Attribution 4.0, https://creativecommons.org/licenses/by/4.0/
+Music: "Cut and Run" and "Hitman" by Kevin MacLeod (incompetech.com),
+licensed under Creative Commons: By Attribution 4.0,
+https://creativecommons.org/licenses/by/4.0/
