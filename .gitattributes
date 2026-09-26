@@ -1,0 +1,2 @@
+archive-edit/out/*.mp4 filter=lfs diff=lfs merge=lfs -text
+archive-edit/audio/*.mp3 filter=lfs diff=lfs merge=lfs -text
