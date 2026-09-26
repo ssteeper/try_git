@@ -1,0 +1,11 @@
+sources/
+clips/
+analysis/
+audio/*.mp3
+audio/*.ogg
+audio/*.wav
+out/*.mp4
+out/work_*/
+*.log
+*.pyc
+__pycache__/
