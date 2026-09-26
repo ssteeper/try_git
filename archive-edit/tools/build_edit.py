@@ -125,6 +125,7 @@ def make_slots(m, rng):
                 t += n * bl
     # trim to song length and give the last slot the remaining audio
     slots = [s for s in slots if s['t0'] < m['dur'] - 0.2]
+    slots[0]['t0'] = 0.0                       # picture starts with the song
     slots[-1]['t1'] = min(slots[-1]['t1'], m['dur'])
     for s in slots:
         s.pop('extend', None)
@@ -156,7 +157,7 @@ def load_pool():
             seg_m, seg_l, seg_c = mo[i0 + 1:i1], lu[i0:i1], co[i0:i1]
             if len(seg_m) == 0: continue
             luma = float(seg_l.mean()); contrast = float(seg_c.mean())
-            if luma < 22 or luma > 228 or contrast < 10: continue   # blank / burnt / featureless
+            if luma < 24 or luma > 200 or contrast < 16: continue   # blank / burnt / featureless
             pool.append(dict(slug=slug, ia=ia[0], file=files[ia[0]], id=sh['id'], t0=t0, t1=t1, dur=d,
                              motion=float(np.percentile(seg_m, 70)), luma=luma, contrast=contrast,
                              color=sh.get('colorMode') or 'unknown', year=srcs[slug].get('year'), title=srcs[slug]['title']))
@@ -290,7 +291,7 @@ def main():
             if i % 25 == 0: print(f'rendered {i}/{len(edl)}', flush=True)
     total_frames = sum(e['frames'] for e in edl)
     films = sorted({(e['title'], e['year']) for e in edl}, key=lambda t: (t[1] or 0, t[0]))
-    years = [e['year'] for e in edl if e['year']]
+    years = [e['year'] for e in edl if e['year'] and e['year'] < 1995]   # later dates are stock-footage upload years
     card = credits_card(os.path.join(workdir, 'credits.ts'), [
         (a.title, 96, True),
         (f'{len(edl)} shots from {len(films)} public-domain films, {min(years)}-{max(years)}', 40, False),
@@ -308,7 +309,7 @@ def main():
     final_vf = (f"noise=alls=6:allf=t+u,vignette=PI/5,eq=contrast=1.06:saturation=1.05,"
                 f"drawtext=fontfile={FONT}:text='{title_safe}':fontsize=110:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2:"
                 f"enable='between(t,0.6,{m['bars'][2]:.2f})':alpha='if(lt(t,1.0),(t-0.6)/0.4,1)',"
-                f"fade=t=in:st=0:d=0.6,fade=t=out:st={vid_len-1.5:.2f}:d=1.5")
+                f"fade=t=in:st=0:d=0.6,fade=t=out:st={vid_len-1.5:.2f}:d=1.5:enable='lt(t,{vid_len:.2f})'")   # enable: the credits after the picture must not stay black
     cmd = ['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', lst, '-i', a.audio,
            '-filter_complex', f"[0:v]{final_vf}[v];[1:a]apad=pad_dur=7,afade=t=out:st={vid_len-1.2:.2f}:d=1.2[a]",
            '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-maxrate', '14M', '-bufsize', '28M', '-pix_fmt', 'yuv420p',
